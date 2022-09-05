@@ -1,11 +1,9 @@
-package mtga
+package godecklistparser
 
 import (
 	"errors"
 	"strconv"
 	"strings"
-
-	godecklistparser "github.com/MTGpraisal/go-decklist-parser"
 )
 
 var exclusions = []string{
@@ -23,9 +21,9 @@ var (
 	ErrInvalidCollectorNum = errors.New("collector number not an int")
 )
 
-func parseDeck(decklist string) ([]godecklistparser.Card, error) {
+func parseMTGA(decklist string) ([]Card, error) {
 	cards := strings.Split(decklist, "\n")
-	parsedCards := make([]godecklistparser.Card, 0, len(cards))
+	parsedCards := make([]Card, 0, len(cards))
 
 	for i := range cards {
 		parsedCard, err := parseCard(cards[i])
@@ -46,18 +44,9 @@ func parseDeck(decklist string) ([]godecklistparser.Card, error) {
 	return parsedCards, nil
 }
 
-func newCard(num int, name, set string, collectorNumber int) godecklistparser.Card {
-	return godecklistparser.Card{
-		Num:             num,
-		Name:            name,
-		Set:             set,
-		CollectorNumber: collectorNumber,
-	}
-}
-
 // parseCard is a bodge, but it works well enough for my needs
-func parseCard(card string) (godecklistparser.Card, error) {
-	var ok = false
+func parseCard(card string) (Card, error) {
+	var ok bool
 	num := 1
 	set := ""
 	collectorNumber := 0
@@ -67,7 +56,7 @@ func parseCard(card string) (godecklistparser.Card, error) {
 	// One word card (ie shock), or a structural word
 	if len(tokenised) <= 1 {
 		if len(tokenised) == 0 || contains(exclusions, strings.ToLower(tokenised[0])) {
-			return godecklistparser.Card{}, ErrNotACard
+			return Card{}, ErrNotACard
 		} else {
 			return newCard(num, tokenised[0], "", 0), nil
 		}
@@ -75,7 +64,7 @@ func parseCard(card string) (godecklistparser.Card, error) {
 
 	// strings.Split(" ", " ") returns {"", ""}
 	if tokenised[0] == "" && tokenised[1] == "" {
-		return godecklistparser.Card{}, ErrNotACard
+		return Card{}, ErrNotACard
 	}
 
 	// Have at least 2 things to look at, so we start parsing proper
@@ -104,7 +93,7 @@ func parseCard(card string) (godecklistparser.Card, error) {
 
 	collectorNumber, err := strconv.Atoi(tokenised[len(tokenised)-1])
 	if err != nil {
-		return godecklistparser.Card{}, ErrInvalidCollectorNum
+		return Card{}, ErrInvalidCollectorNum
 	}
 	return newCard(num, strings.Join(tokenised[:len(tokenised)-2], " "), set, collectorNumber), nil
 

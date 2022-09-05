@@ -1,12 +1,12 @@
-package mtga
+package godecklistparser
 
 import (
 	"testing"
 )
 
-func TestParse(t *testing.T) {
+func TestParseMTGA(t *testing.T) {
 	t.Run("simple parse card count", func(t *testing.T) {
-		decklist, err := parseDeck(testDeck)
+		decklist, err := parseMTGA(testDeck)
 
 		AssertNil(t, err)
 
@@ -20,7 +20,7 @@ func TestParse(t *testing.T) {
 	})
 
 	t.Run("set and collector number", func(t *testing.T) {
-		decklist, err := parseDeck(testComplex)
+		decklist, err := parseMTGA(testComplex)
 
 		AssertNil(t, err)
 
